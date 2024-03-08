@@ -1,0 +1,74 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+# Step 1: Data Collection
+# Load the dataset
+data = pd.read_csv("financial_data.csv")
+
+# Step 2: Data Preprocessing
+# Check for missing values
+print(data.isnull().sum())
+
+# Handle missing values
+data.fillna(method='ffill', inplace=True)
+
+# Balance the dataset (if needed)
+# (assuming data already balanced)
+
+# Step 3: Feature Engineering
+# No specific feature engineering in this example
+
+# Step 4: Exploratory Data Analysis (EDA)
+# Visualize patterns and anomalies
+sns.countplot(x='is_fraud', data=data)
+plt.title('Distribution of Fraudulent vs. Legitimate Transactions')
+plt.show()
+
+# Step 5: Model Selection
+# Split data into features (X) and target variable (y)
+X = data.drop('is_fraud', axis=1)
+y = data['is_fraud']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 6: Model Training
+# Scale features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Train Random Forest Classifier
+rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_classifier.fit(X_train_scaled, y_train)
+
+# Step 7: Model Evaluation
+# Predictions
+y_pred = rf_classifier.predict(X_test_scaled)
+
+# Evaluation metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1)
+
+# Confusion Matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues")
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.show()
